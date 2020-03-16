@@ -12,26 +12,56 @@ int main(int argc, char *argv[])
 {
     string filename;
     //Checking filename
-    if (argc == 1)
+    if (argc == 1) //User input filename
     {
         cout << "filename: ";
         cin >> filename;
     }
-    else if (argc == 2)
+    else if (argc == 2) //Filename as argument
     {
         filename = argv[1];
-        cout << "Reading from file " << filename << endl;
     }
-    else
+    else //Invalid nu,ber of arguments
     {
         cerr << "Invalid number of arguements entered. Termininating.";
         exit(1);
     }
+    cout << "Reading from file: " << filename << endl;
 
-    int cases;
-    vector<vector<int>> proc;
+    /*
+    proc(process) vector contains all processes and their details in a (numofproc x 3) dimension vector with
+    index starting at 1 since 0 is allocated to the number of processes per case
+    */
 
-    readFile(filename, cases, proc);
+    int cases;                                                 //Number of test cases (First line in txt file)
+    vector<vector<int>> proc;                                  //Vector for processes
+    vector<string> schedAlg = readFile(filename, cases, proc); //Read from file
+
+    cout << "[DEBUG] Algorithm vector:\n";
+    for (auto x : schedAlg) //Debug
+    {
+        cout << x << endl;
+    }
+
+    cout << "[DEBUG] Process vector:\n";
+    for (auto x : proc) //Debug
+    {
+        cout << x[0] << " " << x[1] << " " << x[2] << endl;
+    }
+
+    cout << endl;
+    for (int n = 0; n < cases; n++) //Main for loop
+    {
+        cout << "Case " << n << ": " << schedAlg[n] << endl;
+        cout << proc[0][0] << " processes\n";
+
+
+
+
+        proc.erase(proc.begin(), proc.begin() + proc[0][0] + 1); //Erase test cases that are done
+    }
+
+    return 0;
 }
 
 vector<string> readFile(string filename, int &cases, vector<vector<int>> &proc)
@@ -42,7 +72,6 @@ vector<string> readFile(string filename, int &cases, vector<vector<int>> &proc)
     int x;
     vector<int> temp;
 
-    schedAlg.push_back(" ");
     file.open(filename);
     cout << "[DEBUG] File read.\n";
 
@@ -53,23 +82,27 @@ vector<string> readFile(string filename, int &cases, vector<vector<int>> &proc)
     }
 
     file >> cases;
-    cout << "[DEBUG] Cases read: " << cases << endl;        cout << "[DEBUG] Loop started.\n";
+    cout << "[DEBUG] Cases read: " << cases << endl;
+    cout << "[DEBUG] Case Loop started.\n\n";
     for (int n = 1; n <= cases; n++)
     {
-        int procNum;
+        int procNum; //num of processes for test case
         file >> procNum;
-        temp.assign(3, procNum);
-        proc.push_back(temp);
+        temp.assign(3, procNum); //assign to a vector
+        proc.push_back(temp);    //push to proc
         cout << "[DEBUG] Number of processes read: " << procNum << endl;
 
-        string alg;
+        string alg; //algorithm for test case
         getline(file, alg);
-        schedAlg.push_back(alg);
+        istringstream iss(alg);
+        iss >> ws; //trim whitespace
+        getline(iss, alg);
+        schedAlg.push_back(alg); //push to schedAlg
         cout << "[DEBUG] Scheduling algorithm read: " << alg << endl;
 
         temp.clear();
 
-        cout << "[DEBUG] Loop started.\n";
+        cout << "[DEBUG] Process Loop started.\n";
         for (int i = 1; i <= procNum; i++)
         {
             getline(file, line);
@@ -79,8 +112,8 @@ vector<string> readFile(string filename, int &cases, vector<vector<int>> &proc)
                 iss >> x;
                 temp.push_back(x);
             }
-            cout << "[DEBUG] Process " << i << " done:\n";
-            for(auto i: temp)
+            cout << "[DEBUG] Process " << i << " done: ";
+            for (auto i : temp)
             {
                 cout << i << " ";
             }
@@ -88,13 +121,7 @@ vector<string> readFile(string filename, int &cases, vector<vector<int>> &proc)
             proc.push_back(temp);
             temp.clear();
         }
-        cout << "[DEBUG] Loop ended.\n\n";
-    }
-
-    cout << "[DEBUG] Process array:\n";
-    for (auto x : proc)
-    {
-        cout << x[0] << " " << x[1] << " " << x[2] << endl;
+        cout << "[DEBUG] Process Loop ended.\n\n";
     }
 
     return schedAlg;
